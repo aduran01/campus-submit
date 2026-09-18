@@ -1,0 +1,25 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: var(--space-16) var(--space-6);
+  gap: var(--space-3);
+}
+
+.code {
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--color-primary-300);
+}
+
+.title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--color-neutral-800);
+}
+
+.text {
+  color: var(--color-neutral-500);
+  margin-bottom: var(--space-3);
+}

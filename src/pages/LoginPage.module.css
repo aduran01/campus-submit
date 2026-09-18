@@ -1,0 +1,141 @@
+.page {
+  min-height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+  background:
+    radial-gradient(circle at 15% 10%, var(--color-primary-100), transparent 45%),
+    radial-gradient(circle at 85% 90%, var(--color-primary-50), transparent 40%),
+    var(--color-neutral-50);
+}
+
+.card {
+  width: 100%;
+  max-width: 400px;
+  background: var(--color-neutral-0);
+  border: 1px solid var(--color-neutral-200);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: var(--space-8);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+}
+
+.brandMark {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, var(--color-primary-500), var(--color-primary-700));
+  color: var(--color-neutral-0);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.brandName {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--color-neutral-900);
+}
+
+.tagline {
+  text-align: center;
+  margin-top: var(--space-2);
+  color: var(--color-neutral-500);
+  font-size: 0.9rem;
+}
+
+.demoBanner {
+  margin-top: var(--space-5);
+  background: var(--color-primary-50);
+  color: var(--color-primary-700);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.form {
+  margin-top: var(--space-6);
+}
+
+.error {
+  margin: -var(--space-2) 0 var(--space-4);
+  font-size: 0.85rem;
+  color: var(--color-danger-600);
+  font-weight: 600;
+  text-align: center;
+}
+
+.demoCredentials {
+  margin-top: var(--space-6);
+  border-top: 1px solid var(--color-neutral-100);
+  padding-top: var(--space-4);
+}
+
+.demoCredentials summary {
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-primary-600);
+  text-align: center;
+  list-style: none;
+}
+
+.demoCredentials summary::-webkit-details-marker {
+  display: none;
+}
+
+.demoCredentialsBody {
+  margin-top: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.demoRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: var(--color-neutral-50);
+  border: 1px solid var(--color-neutral-200);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
+  font-size: 0.82rem;
+  text-align: left;
+  transition: background-color var(--transition-fast);
+}
+
+.demoRow:hover {
+  background: var(--color-neutral-100);
+}
+
+.demoRoleLabel {
+  font-weight: 700;
+  color: var(--color-neutral-700);
+}
+
+.demoRoleValue {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: var(--color-neutral-500);
+}
+
+.demoSeparator {
+  color: var(--color-neutral-300);
+}
+
+.demoHint {
+  font-size: 0.72rem;
+  color: var(--color-neutral-400);
+  text-align: center;
+  margin-top: var(--space-1);
+}

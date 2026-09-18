@@ -1,0 +1,66 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  max-width: 520px;
+}
+
+.title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--color-neutral-900);
+}
+
+.card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-5);
+}
+
+.avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-primary-400), var(--color-primary-700));
+  color: var(--color-neutral-0);
+  font-size: 1.6rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-neutral-900);
+}
+
+.username {
+  font-size: 0.85rem;
+  color: var(--color-neutral-500);
+}
+
+.noteCard {
+  background: var(--color-neutral-50);
+}
+
+.noteTitle {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--color-neutral-800);
+}
+
+.noteText {
+  margin-top: var(--space-2);
+  font-size: 0.85rem;
+  color: var(--color-neutral-500);
+  line-height: 1.6;
+}

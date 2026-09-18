@@ -1,0 +1,28 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  max-width: 560px;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--color-neutral-900);
+}
+
+.subtitle {
+  color: var(--color-neutral-500);
+  font-size: 0.95rem;
+  margin-top: var(--space-1);
+}
+
+.card {
+  padding: var(--space-6);
+}

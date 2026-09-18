@@ -1,0 +1,111 @@
+.dropzone {
+  border: 2px dashed var(--color-neutral-300);
+  border-radius: var(--radius-lg);
+  padding: var(--space-8) var(--space-6);
+  text-align: center;
+  cursor: pointer;
+  background: var(--color-neutral-50);
+  transition: border-color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.dropzone:hover {
+  border-color: var(--color-primary-400);
+  background: var(--color-primary-50);
+}
+
+.dropzoneActive {
+  border-color: var(--color-primary-500);
+  background: var(--color-primary-50);
+}
+
+.disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.uploadIcon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--color-primary-100);
+  color: var(--color-primary-600);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto var(--space-3);
+  font-size: 1.1rem;
+}
+
+.dropzoneTitle {
+  font-weight: 600;
+  color: var(--color-neutral-700);
+  font-size: 0.95rem;
+}
+
+.dropzoneHint {
+  margin-top: var(--space-2);
+  font-size: 0.8rem;
+  color: var(--color-neutral-500);
+}
+
+.selectedFile {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  border: 1px solid var(--color-neutral-200);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4) var(--space-5);
+  background: var(--color-neutral-0);
+}
+
+.selectedFileError {
+  border-color: var(--color-danger-500);
+  background: var(--color-danger-50);
+}
+
+.fileIcon {
+  font-size: 1.6rem;
+  flex-shrink: 0;
+}
+
+.fileInfo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.fileName {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--color-neutral-800);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fileMeta {
+  font-size: 0.8rem;
+  color: var(--color-neutral-500);
+}
+
+.fileError {
+  font-size: 0.8rem;
+  color: var(--color-danger-600);
+  font-weight: 600;
+}
+
+.removeButton {
+  flex-shrink: 0;
+  background: var(--color-neutral-0);
+  border: 1px solid var(--color-neutral-200);
+  border-radius: var(--radius-md);
+  padding: 0.4rem 0.75rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--color-neutral-600);
+}
+.removeButton:hover:not(:disabled) {
+  background: var(--color-neutral-100);
+}
