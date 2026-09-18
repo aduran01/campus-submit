@@ -12,50 +12,51 @@
 
 .card {
   width: 100%;
-  max-width: 400px;
-  background: var(--color-neutral-0);
-  border: 1px solid var(--color-neutral-200);
+  max-width: 384px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: linear-gradient(to bottom, var(--color-primary-50), var(--color-neutral-0));
+  border: 1px solid var(--color-primary-100);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
   padding: var(--space-8);
 }
 
-.brand {
+.iconBadge {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: var(--space-3);
-}
-
-.brandMark {
-  width: 40px;
-  height: 40px;
+  width: 56px;
+  height: 56px;
+  margin-bottom: var(--space-6);
   border-radius: var(--radius-md);
-  background: linear-gradient(135deg, var(--color-primary-500), var(--color-primary-700));
-  color: var(--color-neutral-0);
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background: var(--color-neutral-0);
+  color: var(--color-primary-600);
+  box-shadow: var(--shadow-md);
 }
 
-.brandName {
-  font-size: 1.3rem;
+.title {
+  font-size: 1.5rem;
   font-weight: 800;
+  line-height: 1.25;
+  text-align: center;
   color: var(--color-neutral-900);
 }
 
-.tagline {
-  text-align: center;
+.subtitle {
   margin-top: var(--space-2);
-  color: var(--color-neutral-500);
   font-size: 0.9rem;
+  text-align: center;
+  color: var(--color-neutral-500);
 }
 
 .demoBanner {
+  width: 100%;
   margin-top: var(--space-5);
   background: var(--color-primary-50);
   color: var(--color-primary-700);
+  border: 1px solid var(--color-primary-100);
   border-radius: var(--radius-md);
   padding: var(--space-3) var(--space-4);
   font-size: 0.8rem;
@@ -64,28 +65,91 @@
 }
 
 .form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
   margin-top: var(--space-6);
+}
+
+.inputWrap {
+  position: relative;
+}
+
+.inputIcon {
+  position: absolute;
+  left: var(--space-3);
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  color: var(--color-neutral-400);
+  pointer-events: none;
+  transition: color var(--transition-fast);
+}
+
+.inputWrap:focus-within .inputIcon {
+  color: var(--color-primary-600);
+}
+
+.input {
+  width: 100%;
+  padding: 0.65rem var(--space-3) 0.65rem 2.5rem;
+  font-size: 0.9rem;
+  color: var(--color-neutral-800);
+  background: var(--color-neutral-50);
+  border: 1px solid var(--color-neutral-200);
+  border-radius: var(--radius-md);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast), background-color var(--transition-fast);
+}
+
+.input::placeholder {
+  color: var(--color-neutral-500);
+}
+
+.input:hover {
+  border-color: var(--color-neutral-300);
+}
+
+.input:focus-visible {
+  outline: none;
+  background: var(--color-neutral-0);
+  border-color: var(--color-primary-500);
+  box-shadow: 0 0 0 3px var(--color-primary-100);
 }
 
 .error {
-  margin: -var(--space-2) 0 var(--space-4);
   font-size: 0.85rem;
-  color: var(--color-danger-600);
   font-weight: 600;
   text-align: center;
+  color: var(--color-danger-600);
 }
 
-.wakingHint {
-  margin-top: var(--space-3);
-  font-size: 0.78rem;
-  color: var(--color-neutral-400);
-  text-align: center;
+.submit {
+  margin-top: var(--space-2);
+  background: linear-gradient(to bottom, var(--color-primary-600), var(--color-primary-700));
+}
+
+.divider {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-6);
+}
+
+.dividerLine {
+  flex: 1;
+  border-top: 1px dashed var(--color-neutral-300);
+}
+
+.dividerText {
+  font-size: 0.75rem;
+  color: var(--color-neutral-500);
 }
 
 .demoCredentials {
-  margin-top: var(--space-6);
-  border-top: 1px solid var(--color-neutral-100);
-  padding-top: var(--space-4);
+  width: 100%;
+  margin-top: var(--space-3);
 }
 
 .demoCredentials summary {
@@ -113,7 +177,7 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  background: var(--color-neutral-50);
+  background: var(--color-neutral-0);
   border: 1px solid var(--color-neutral-200);
   border-radius: var(--radius-md);
   padding: var(--space-2) var(--space-3);
@@ -142,7 +206,7 @@
 
 .demoHint {
   font-size: 0.72rem;
-  color: var(--color-neutral-400);
+  color: var(--color-neutral-500);
   text-align: center;
   margin-top: var(--space-1);
 }
