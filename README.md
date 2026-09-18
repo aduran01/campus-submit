@@ -112,7 +112,7 @@ This is real authentication, not a simulation — but see [Prototype & Security 
 
 | Role | Username | Password |
 |---|---|---|
-| Student | `student` | `***REMOVED-SEED-PASSWORD***` |
+| Student | `crimbawa` | `***REMOVED-SEED-PASSWORD***` |
 | Admin | `admin` | `***REMOVED-SEED-PASSWORD***` |
 
 The login page has a "Need demo credentials?" disclosure that shows both and can autofill the form. These are display hints only now — `src/config/credentials.ts` documents them for the UI, but the accounts themselves live in the `users` table on the server.
@@ -121,7 +121,7 @@ The login page has a "Need demo credentials?" disclosure that shows both and can
 1. Update the display hint in `src/config/credentials.ts` (so the login page shows the new value).
 2. Generate a new bcrypt hash and update the corresponding row in the `users` table (e.g. via Render's Postgres dashboard's SQL console, or `psql`):
    ```sql
-   UPDATE users SET password_hash = '<new bcrypt hash>' WHERE username = 'student';
+   UPDATE users SET password_hash = '<new bcrypt hash>' WHERE username = 'crimbawa';
    ```
    Generate the hash locally with: `node -e "require('bcryptjs').hash('new-password', 10).then(console.log)"` (run from inside `server/`, after `npm install`).
 

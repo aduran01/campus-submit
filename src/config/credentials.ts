@@ -28,6 +28,6 @@ export interface DemoAccountHint {
 }
 
 export const DEMO_ACCOUNTS: DemoAccountHint[] = [
-  { username: 'student', password: '***REMOVED-SEED-PASSWORD***', role: 'student', displayName: 'Camille Rimbawa' },
+  { username: 'crimbawa', password: '***REMOVED-SEED-PASSWORD***', role: 'student', displayName: 'Camille Rimbawa' },
   { username: 'admin', password: '***REMOVED-SEED-PASSWORD***', role: 'admin', displayName: 'Admin User' },
 ]

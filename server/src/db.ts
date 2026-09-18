@@ -45,19 +45,36 @@ async function createSchema(): Promise<void> {
   `)
 }
 
-/** Seeds the two demo accounts (idempotent — safe to call on every boot). */
-async function seedUsers(): Promise<void> {
-  const { rows } = await pool.query<{ count: string }>('SELECT count(*)::text FROM users')
-  if (Number(rows[0].count) > 0) return
+const STUDENT_USERNAME = 'crimbawa'
+const STUDENT_PASSWORD = '***REMOVED-SEED-PASSWORD***'
+const LEGACY_STUDENT_USERNAME = 'student'
 
-  const [adminHash, studentHash] = await Promise.all([hashPassword('***REMOVED-SEED-PASSWORD***'), hashPassword('***REMOVED-SEED-PASSWORD***')])
+/**
+ * Seeds the two demo accounts (idempotent — safe to call on every boot).
+ * The student account is also re-synced on every boot, so an already-seeded
+ * database picks up the current username/password, and any submissions made
+ * under the old 'student' username are carried over to the new one.
+ */
+async function seedUsers(): Promise<void> {
+  const [adminHash, studentHash] = await Promise.all([hashPassword('***REMOVED-SEED-PASSWORD***'), hashPassword(STUDENT_PASSWORD)])
 
   await pool.query(
-    `INSERT INTO users (username, password_hash, role, display_name) VALUES
-       ($1, $2, 'student', $3),
-       ($4, $5, 'admin', $6)`,
-    ['student', studentHash, 'Camille Rimbawa', 'admin', adminHash, 'Admin User'],
+    `INSERT INTO users (username, password_hash, role, display_name) VALUES ($1, $2, 'admin', $3)
+     ON CONFLICT (username) DO NOTHING`,
+    ['admin', adminHash, 'Admin User'],
   )
+
+  await pool.query(
+    `INSERT INTO users (username, password_hash, role, display_name) VALUES ($1, $2, 'student', $3)
+     ON CONFLICT (username) DO UPDATE SET password_hash = EXCLUDED.password_hash`,
+    [STUDENT_USERNAME, studentHash, 'Camille Rimbawa'],
+  )
+
+  await pool.query('UPDATE submissions SET student_username = $1 WHERE student_username = $2', [
+    STUDENT_USERNAME,
+    LEGACY_STUDENT_USERNAME,
+  ])
+  await pool.query("DELETE FROM users WHERE username = $1 AND role = 'student'", [LEGACY_STUDENT_USERNAME])
 }
 
 /** Seeds the demo assignments only if the table is completely empty (first boot). */
