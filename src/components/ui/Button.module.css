@@ -41,6 +41,11 @@
 }
 .primary:hover:not(:disabled) {
   background: var(--color-primary-700);
+  box-shadow: var(--shadow-glow-primary);
+  transform: translateY(-1px);
+}
+.primary:active:not(:disabled) {
+  box-shadow: var(--shadow-sm);
 }
 
 .secondary {

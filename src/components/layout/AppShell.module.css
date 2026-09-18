@@ -4,6 +4,24 @@
   flex-direction: column;
 }
 
+.skipLink {
+  position: absolute;
+  top: -48px;
+  left: var(--space-4);
+  z-index: 100;
+  background: var(--color-primary-600);
+  color: var(--color-neutral-0);
+  font-weight: 700;
+  font-size: 0.85rem;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  transition: top var(--transition-fast);
+}
+
+.skipLink:focus-visible {
+  top: var(--space-4);
+}
+
 .header {
   background: var(--color-neutral-0);
   border-bottom: 1px solid var(--color-neutral-200);

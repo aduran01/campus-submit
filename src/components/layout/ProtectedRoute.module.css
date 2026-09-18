@@ -1,0 +1,5 @@
+.loadingScreen {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-16);
+}

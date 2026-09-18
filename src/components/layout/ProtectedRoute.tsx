@@ -2,6 +2,7 @@ import { Navigate, Outlet } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import type { UserRole } from '../../types'
 import { Spinner } from '../ui/Spinner'
+import styles from './ProtectedRoute.module.css'
 
 interface ProtectedRouteProps {
   /** If provided, only these roles may view the nested routes; anyone else is bounced to /dashboard. */
@@ -13,7 +14,7 @@ export function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
 
   if (isInitializing) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem' }}>
+      <div className={styles.loadingScreen}>
         <Spinner />
       </div>
     )

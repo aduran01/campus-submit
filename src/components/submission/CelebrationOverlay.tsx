@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { runConfetti } from '../../utils/confetti'
 import { formatTimestamp } from '../../utils/dateUtils'
 import { Button } from '../ui/Button'
+import { useFocusTrap } from '../../hooks/useFocusTrap'
 import styles from './CelebrationOverlay.module.css'
 
 interface CelebrationOverlayProps {
@@ -23,11 +24,19 @@ export function CelebrationOverlay({
   onDismiss,
 }: CelebrationOverlayProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const cardRef = useRef<HTMLDivElement>(null)
+
+  useFocusTrap(cardRef, isOpen, onDismiss)
 
   useEffect(() => {
     if (!isOpen || !canvasRef.current) return
     const cleanup = runConfetti(canvasRef.current)
     return cleanup
+  }, [isOpen])
+
+  useEffect(() => {
+    if (!isOpen) return
+    cardRef.current?.focus()
   }, [isOpen])
 
   if (!isOpen) return null
@@ -36,7 +45,7 @@ export function CelebrationOverlay({
     <div className={styles.overlay} role="alertdialog" aria-modal="true" aria-labelledby="celebration-title">
       <canvas ref={canvasRef} className={styles.confettiCanvas} aria-hidden="true" />
 
-      <div className={styles.card}>
+      <div className={styles.card} ref={cardRef} tabIndex={-1}>
         <div className={styles.checkCircle}>
           <svg viewBox="0 0 52 52" className={styles.checkSvg} aria-hidden="true">
             <circle className={styles.checkCircleBg} cx="26" cy="26" r="24" />

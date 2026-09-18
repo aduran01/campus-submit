@@ -55,7 +55,11 @@ export function FileDropzone({ selectedFile, onFileSelected, onFileRemoved, erro
           <span className={styles.fileMeta}>
             {selectedFile.type || 'Unknown type'} • {formatFileSize(selectedFile.size)}
           </span>
-          {error && <span className={styles.fileError}>{error}</span>}
+          {error && (
+            <span className={styles.fileError} role="alert">
+              {error}
+            </span>
+          )}
         </div>
         <button
           type="button"

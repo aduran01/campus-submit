@@ -19,12 +19,32 @@ interface Particle {
   shape: 'rect' | 'circle'
 }
 
-const CONFETTI_COLORS = ['#4f46e5', '#22c55e', '#f59e0b', '#ec4899', '#06b6d4', '#8b5cf6']
+const CONFETTI_COLOR_TOKENS = [
+  '--color-primary-400',
+  '--color-primary-600',
+  '--color-success-500',
+  '--color-warning-500',
+  '--color-danger-500',
+  '--color-neutral-0',
+]
+
+/** Reads the live design tokens rather than duplicating their hex values here, so confetti always matches the current palette. */
+function readConfettiColors(): string[] {
+  const computed = getComputedStyle(document.documentElement)
+  return CONFETTI_COLOR_TOKENS.map((token) => computed.getPropertyValue(token).trim()).filter(Boolean)
+}
 
 export function runConfetti(canvas: HTMLCanvasElement, particleCount = 150, durationMs = 2600): () => void {
+  // Respect the OS-level reduced-motion preference: skip the burst entirely
+  // rather than force motion CSS alone can't reach (this is a <canvas>).
+  if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) {
+    return () => {}
+  }
+
   const ctx = canvas.getContext('2d')
   if (!ctx) return () => {}
 
+  const colors = readConfettiColors()
   const width = canvas.clientWidth
   const height = canvas.clientHeight
   canvas.width = width
@@ -36,7 +56,7 @@ export function runConfetti(canvas: HTMLCanvasElement, particleCount = 150, dura
     vx: (Math.random() - 0.5) * 3.2,
     vy: 1.5 + Math.random() * 2.5,
     size: 6 + Math.random() * 6,
-    color: CONFETTI_COLORS[Math.floor(Math.random() * CONFETTI_COLORS.length)],
+    color: colors[Math.floor(Math.random() * colors.length)],
     rotation: Math.random() * 360,
     rotationSpeed: (Math.random() - 0.5) * 12,
     shape: Math.random() > 0.5 ? 'rect' : 'circle',

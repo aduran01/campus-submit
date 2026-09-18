@@ -74,6 +74,20 @@ img {
   white-space: nowrap;
 }
 
+/* Respect the OS-level reduced-motion preference: collapse every CSS
+   animation/transition to effectively instant. Canvas-driven motion
+   (confetti) is handled separately in JS since it can't be reached by CSS. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* Scrollbar polish (progressive enhancement only) */
 ::-webkit-scrollbar {
   width: 10px;

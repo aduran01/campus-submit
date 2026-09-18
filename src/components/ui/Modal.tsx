@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import type { ReactNode } from 'react'
 import { createPortal } from 'react-dom'
+import { useFocusTrap } from '../../hooks/useFocusTrap'
 import styles from './Modal.module.css'
 
 interface ModalProps {
@@ -16,25 +17,19 @@ interface ModalProps {
 export function Modal({ isOpen, onClose, title, children, footer, disableDismiss = false }: ModalProps) {
   const dialogRef = useRef<HTMLDivElement>(null)
 
+  useFocusTrap(dialogRef, isOpen, disableDismiss ? undefined : onClose)
+
   useEffect(() => {
     if (!isOpen) return
 
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape' && !disableDismiss) {
-        onClose()
-      }
-    }
-
-    document.addEventListener('keydown', handleKeyDown)
     dialogRef.current?.focus()
     const previousOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
 
     return () => {
-      document.removeEventListener('keydown', handleKeyDown)
       document.body.style.overflow = previousOverflow
     }
-  }, [isOpen, onClose, disableDismiss])
+  }, [isOpen])
 
   if (!isOpen) return null
 
