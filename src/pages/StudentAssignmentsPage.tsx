@@ -1,40 +1,31 @@
-import { useEffect, useState } from 'react'
-import { useAuth } from '../context/AuthContext'
-import { getAssignments } from '../services/assignmentService'
-import { getSubmissionsForStudent } from '../services/submissionService'
+import { useState } from 'react'
+import { useAssignmentsData } from '../hooks/useAssignmentsData'
 import type { Assignment, Submission } from '../types'
 import { AssignmentCard } from '../components/assignments/AssignmentCard'
 import { SubmissionPanel } from '../components/submission/SubmissionPanel'
 import { CelebrationOverlay } from '../components/submission/CelebrationOverlay'
 import { EmptyState } from '../components/ui/EmptyState'
+import { PageLoading } from '../components/ui/PageLoading'
 import styles from './StudentAssignmentsPage.module.css'
 
 export function StudentAssignmentsPage() {
-  const { user } = useAuth()
-  const [assignments, setAssignments] = useState<Assignment[]>([])
-  const [submissions, setSubmissions] = useState<Submission[]>([])
+  const { assignments, submissions, isLoading, refresh } = useAssignmentsData()
   const [activeAssignment, setActiveAssignment] = useState<Assignment | null>(null)
   const [celebration, setCelebration] = useState<Submission | null>(null)
-
-  function refresh() {
-    if (!user) return
-    setAssignments(getAssignments())
-    setSubmissions(getSubmissionsForStudent(user.username))
-  }
-
-  useEffect(refresh, [user])
 
   function submissionFor(assignmentId: string): Submission | undefined {
     return submissions.find((s) => s.assignmentId === assignmentId)
   }
 
-  function handleSubmitted(submission: Submission) {
+  async function handleSubmitted(submission: Submission) {
     setActiveAssignment(null)
-    refresh()
+    await refresh()
     setCelebration(submission)
   }
 
-  const celebratedAssignment = celebration ? assignments.find((a) => a.id === celebration.assignmentId) : null
+  if (isLoading) {
+    return <PageLoading />
+  }
 
   return (
     <div className={styles.page}>
@@ -70,7 +61,7 @@ export function StudentAssignmentsPage() {
 
       <CelebrationOverlay
         isOpen={celebration !== null}
-        assignmentTitle={celebratedAssignment?.title ?? ''}
+        assignmentTitle={celebration?.assignmentTitle ?? ''}
         fileName={celebration?.fileName ?? null}
         submittedAt={celebration?.submittedAt ?? null}
         wasLate={celebration?.status === 'submitted_late'}

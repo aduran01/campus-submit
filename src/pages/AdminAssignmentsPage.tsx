@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { getAssignments, updateAssignment, deleteAssignment } from '../services/assignmentService'
-import { countSubmissionsForAssignment, deleteSubmissionsForAssignment } from '../services/submissionService'
-import { resetDemoData } from '../services/demoData'
+import { updateAssignment, deleteAssignment } from '../services/assignmentService'
+import { resetDemoData } from '../services/adminService'
+import { ApiError } from '../services/apiClient'
+import { useAssignmentsData } from '../hooks/useAssignmentsData'
 import type { Assignment, AssignmentInput } from '../types'
 import { AdminAssignmentRow } from '../components/assignments/AdminAssignmentRow'
 import { AssignmentForm } from '../components/assignments/AssignmentForm'
@@ -10,47 +11,62 @@ import { Modal } from '../components/ui/Modal'
 import { ConfirmDialog } from '../components/ui/ConfirmDialog'
 import { Button } from '../components/ui/Button'
 import { EmptyState } from '../components/ui/EmptyState'
+import { PageLoading } from '../components/ui/PageLoading'
 import { useToast } from '../context/ToastContext'
 import styles from './AdminAssignmentsPage.module.css'
 
 export function AdminAssignmentsPage() {
   const { showToast } = useToast()
-  const [assignments, setAssignments] = useState<Assignment[]>([])
+  const { assignments, submissions, isLoading, refresh } = useAssignmentsData()
   const [editingAssignment, setEditingAssignment] = useState<Assignment | null>(null)
   const [deletingAssignment, setDeletingAssignment] = useState<Assignment | null>(null)
   const [isResetConfirmOpen, setIsResetConfirmOpen] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
 
-  function refresh() {
-    setAssignments(getAssignments())
+  function submissionCountFor(assignmentId: string): number {
+    return submissions.filter((s) => s.assignmentId === assignmentId).length
   }
 
-  useEffect(refresh, [])
-
-  function handleEditSubmit(input: AssignmentInput) {
+  async function handleEditSubmit(input: AssignmentInput) {
     if (!editingAssignment) return
     setIsSaving(true)
-    updateAssignment(editingAssignment.id, input)
-    setIsSaving(false)
-    setEditingAssignment(null)
-    refresh()
-    showToast('Assignment updated.', 'success')
+    try {
+      await updateAssignment(editingAssignment.id, input)
+      setEditingAssignment(null)
+      await refresh()
+      showToast('Assignment updated.', 'success')
+    } catch (err) {
+      showToast(err instanceof ApiError ? err.message : 'Failed to update the assignment.', 'error')
+    } finally {
+      setIsSaving(false)
+    }
   }
 
-  function confirmDelete() {
+  async function confirmDelete() {
     if (!deletingAssignment) return
-    deleteAssignment(deletingAssignment.id)
-    deleteSubmissionsForAssignment(deletingAssignment.id)
-    setDeletingAssignment(null)
-    refresh()
-    showToast('Assignment deleted.', 'success')
+    try {
+      await deleteAssignment(deletingAssignment.id)
+      setDeletingAssignment(null)
+      await refresh()
+      showToast('Assignment deleted.', 'success')
+    } catch (err) {
+      showToast(err instanceof ApiError ? err.message : 'Failed to delete the assignment.', 'error')
+    }
   }
 
-  function confirmReset() {
-    resetDemoData()
-    setIsResetConfirmOpen(false)
-    refresh()
-    showToast('Demo data has been reset.', 'success')
+  async function confirmReset() {
+    try {
+      await resetDemoData()
+      setIsResetConfirmOpen(false)
+      await refresh()
+      showToast('Demo data has been reset for everyone.', 'success')
+    } catch (err) {
+      showToast(err instanceof ApiError ? err.message : 'Failed to reset demo data.', 'error')
+    }
+  }
+
+  if (isLoading) {
+    return <PageLoading />
   }
 
   return (
@@ -86,7 +102,7 @@ export function AdminAssignmentsPage() {
             <AdminAssignmentRow
               key={assignment.id}
               assignment={assignment}
-              submissionCount={countSubmissionsForAssignment(assignment.id)}
+              submissionCount={submissionCountFor(assignment.id)}
               onEdit={setEditingAssignment}
               onDelete={setDeletingAssignment}
             />
@@ -109,7 +125,7 @@ export function AdminAssignmentsPage() {
       <ConfirmDialog
         isOpen={deletingAssignment !== null}
         title="Delete assignment?"
-        message={`This will permanently delete "${deletingAssignment?.title}" and any student submissions for it. This cannot be undone.`}
+        message={`This will permanently delete "${deletingAssignment?.title}" and any student submissions for it, for every student. This cannot be undone.`}
         confirmLabel="Delete"
         danger
         onConfirm={confirmDelete}
@@ -119,7 +135,7 @@ export function AdminAssignmentsPage() {
       <ConfirmDialog
         isOpen={isResetConfirmOpen}
         title="Reset demo data?"
-        message="This restores the original demo assignments and clears every submission. Useful before a fresh demo run. This cannot be undone."
+        message="This restores the original demo assignments and clears every submission — for every device, not just this one. This cannot be undone."
         confirmLabel="Reset"
         danger
         onConfirm={confirmReset}

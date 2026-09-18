@@ -1,36 +1,33 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { getAssignments } from '../services/assignmentService'
-import { getAllSubmissions, isPastDue } from '../services/submissionService'
-import type { Assignment, Submission } from '../types'
+import { useAssignmentsData } from '../hooks/useAssignmentsData'
+import { isPastDue } from '../services/submissionService'
 import { Card } from '../components/ui/Card'
+import { PageLoading } from '../components/ui/PageLoading'
 import { formatDueDate, getRelativeDueLabel } from '../utils/dateUtils'
 import styles from './AdminDashboardPage.module.css'
 
 export function AdminDashboardPage() {
   const { user } = useAuth()
-  const [assignments, setAssignments] = useState<Assignment[]>([])
-  const [submissions, setSubmissions] = useState<Submission[]>([])
-
-  useEffect(() => {
-    setAssignments(getAssignments())
-    setSubmissions(getAllSubmissions())
-  }, [])
+  const { assignments, submissions, isLoading } = useAssignmentsData()
 
   const stats = useMemo(() => {
-    const receivedSubmissions = submissions.filter((s) => s.status !== 'not_submitted')
     const upcoming = assignments
       .filter((a) => !isPastDue(a.dueDate))
       .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
 
     return {
       totalAssignments: assignments.length,
-      totalSubmissions: receivedSubmissions.length,
+      totalSubmissions: submissions.length,
       upcomingCount: upcoming.length,
       nextDeadline: upcoming[0],
     }
   }, [assignments, submissions])
+
+  if (isLoading) {
+    return <PageLoading />
+  }
 
   return (
     <div className={styles.page}>
@@ -49,10 +46,12 @@ export function AdminDashboardPage() {
           <span className={styles.statValue}>{stats.totalAssignments}</span>
           <span className={styles.statLabel}>Assignments Created</span>
         </Card>
-        <Card className={styles.statCard}>
-          <span className={styles.statValue}>{stats.totalSubmissions}</span>
-          <span className={styles.statLabel}>Submissions Received</span>
-        </Card>
+        <Link to="/submissions" className={styles.statCardLink}>
+          <Card className={styles.statCard}>
+            <span className={styles.statValue}>{stats.totalSubmissions}</span>
+            <span className={styles.statLabel}>Submissions Received</span>
+          </Card>
+        </Link>
         <Card className={styles.statCard}>
           <span className={styles.statValue}>{stats.upcomingCount}</span>
           <span className={styles.statLabel}>Upcoming Deadlines</span>

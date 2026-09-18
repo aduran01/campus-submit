@@ -6,11 +6,15 @@ dist
 dist-ssr
 build
 
-# Environment files (none contain real secrets in this prototype, but keep
-# the habit — never commit .env files)
+# Environment files. .env.production only holds the public API URL (no
+# secrets) and is intentionally committed so the GitHub Actions build picks
+# it up automatically — everything else here can hold real secrets locally
+# (see server/.env) and must never be committed.
 .env
-.env.*
+.env.*.local
+.env.development.local
 !.env.example
+!.env.production
 
 # Editor / OS
 .vscode/*

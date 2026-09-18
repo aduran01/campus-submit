@@ -2,68 +2,32 @@ import type { UserRole } from '../types'
 
 /**
  * ============================================================================
- * DEMO CREDENTIALS — EDIT THIS FILE TO CHANGE WHO CAN LOG IN
+ * DEMO CREDENTIALS — DISPLAY HINT ONLY
  * ============================================================================
- * This is the ONLY place in the codebase that defines valid logins. Add,
- * remove, or edit entries in `DEMO_USERS` and the rest of the app (login
- * page, role-based routing, nav) picks it up automatically.
+ * Authentication is now handled entirely by the backend (see
+ * server/src/routes/auth.ts and server/src/db.ts, where the same two demo
+ * accounts are seeded with bcrypt-hashed passwords). This file no longer
+ * verifies anything — it exists purely to drive the "Need demo credentials?"
+ * hint on the login page, so those strings live in one documented place
+ * instead of being typed inline in a component.
  *
- * Passwords are never stored or compared as plaintext. Each record stores a
- * SHA-256 hash (hex-encoded) of the password. When someone logs in, the app
- * hashes what they typed with the Web Crypto API and compares the resulting
- * hex string against `passwordHash` (see `src/services/authService.ts`).
- *
- * HOW TO CHANGE A DEMO PASSWORD
- * ------------------------------------------------------------------------
- * 1. Run the app locally (`npm run dev`) and open it in a browser.
- * 2. Open DevTools → Console and run:
- *
- *      await window.__hashPassword('your-new-password')
- *
- * 3. Copy the 64-character hex string it prints and paste it below as the
- *    `passwordHash` for the account you're changing.
- *
- * (`window.__hashPassword` only exists in dev builds — see `src/main.tsx`.)
- *
- * SECURITY NOTE — READ THIS
- * ------------------------------------------------------------------------
- * Hashing here happens entirely in the visitor's browser and exists only to
- * avoid keeping plaintext passwords in this file / in memory. It is NOT
- * real authentication:
- *   - There is no server to keep a secret from the client, so anyone can
- *     open DevTools, read this file from the bundled source, or simply
- *     inspect/patch the running JavaScript to bypass the check entirely.
- *   - There is no salting, so identical passwords produce identical hashes
- *     and the hashes below are vulnerable to precomputed ("rainbow table")
- *     lookups.
- *   - Do not reuse a real password here, and do not treat this scheme as
- *     adequate for anything beyond a local demo.
- * See the README's "Prototype & Security Limitations" section for what a
- * production login would need instead.
+ * If you change a demo password, update it in BOTH places:
+ *   1. Here (so the on-screen hint stays accurate)
+ *   2. server/src/db.ts's seedUsers() (so the login actually accepts it) —
+ *      note seedUsers() only runs once, on an empty database, so you'll also
+ *      need to update the row directly (or wipe the users table) if the
+ *      database has already been seeded.
  * ============================================================================
  */
 
-export interface DemoUserRecord {
+export interface DemoAccountHint {
   username: string
-  /** SHA-256 hex digest of the account's password. Never the plaintext password. */
-  passwordHash: string
+  password: string
   role: UserRole
   displayName: string
 }
 
-export const DEMO_USERS: DemoUserRecord[] = [
-  {
-    username: 'student',
-    // password: ***REMOVED-SEED-PASSWORD***
-    passwordHash: '***REMOVED-HASH***',
-    role: 'student',
-    displayName: 'Jordan Rivera',
-  },
-  {
-    username: 'admin',
-    // password: ***REMOVED-SEED-PASSWORD***
-    passwordHash: '***REMOVED-HASH***',
-    role: 'admin',
-    displayName: 'Admin User',
-  },
+export const DEMO_ACCOUNTS: DemoAccountHint[] = [
+  { username: 'student', password: '***REMOVED-SEED-PASSWORD***', role: 'student', displayName: 'Jordan Rivera' },
+  { username: 'admin', password: '***REMOVED-SEED-PASSWORD***', role: 'admin', displayName: 'Admin User' },
 ]

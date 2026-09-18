@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { createAssignment } from '../services/assignmentService'
+import { ApiError } from '../services/apiClient'
 import type { AssignmentInput } from '../types'
 import { AssignmentForm } from '../components/assignments/AssignmentForm'
 import { Card } from '../components/ui/Card'
@@ -12,12 +13,17 @@ export function AdminCreateAssignmentPage() {
   const { showToast } = useToast()
   const [isSaving, setIsSaving] = useState(false)
 
-  function handleSubmit(input: AssignmentInput) {
+  async function handleSubmit(input: AssignmentInput) {
     setIsSaving(true)
-    createAssignment(input)
-    setIsSaving(false)
-    showToast(`"${input.title}" was created and is now visible to students.`, 'success')
-    navigate('/assignments')
+    try {
+      await createAssignment(input)
+      showToast(`"${input.title}" was created and is now visible to students.`, 'success')
+      navigate('/assignments')
+    } catch (err) {
+      showToast(err instanceof ApiError ? err.message : 'Failed to create the assignment.', 'error')
+    } finally {
+      setIsSaving(false)
+    }
   }
 
   return (

@@ -1,4 +1,4 @@
-.loadingScreen {
+.wrapper {
   display: flex;
   justify-content: center;
   padding: var(--space-16);

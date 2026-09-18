@@ -1,10 +1,8 @@
-import { useEffect } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider, useAuth } from './context/AuthContext'
 import { ToastProvider } from './context/ToastContext'
 import { ProtectedRoute } from './components/layout/ProtectedRoute'
 import { AppShell } from './components/layout/AppShell'
-import { ensureDemoDataSeeded } from './services/demoData'
 import { LoginPage } from './pages/LoginPage'
 import { StudentDashboardPage } from './pages/StudentDashboardPage'
 import { StudentAssignmentsPage } from './pages/StudentAssignmentsPage'
@@ -12,6 +10,7 @@ import { ProfilePage } from './pages/ProfilePage'
 import { AdminDashboardPage } from './pages/AdminDashboardPage'
 import { AdminAssignmentsPage } from './pages/AdminAssignmentsPage'
 import { AdminCreateAssignmentPage } from './pages/AdminCreateAssignmentPage'
+import { AdminSubmissionsPage } from './pages/AdminSubmissionsPage'
 import { NotFoundPage } from './pages/NotFoundPage'
 
 /** Renders the right "Dashboard" page for whichever role is logged in. */
@@ -39,6 +38,7 @@ function AppRoutes() {
 
           <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
             <Route path="/assignments/new" element={<AdminCreateAssignmentPage />} />
+            <Route path="/submissions" element={<AdminSubmissionsPage />} />
           </Route>
         </Route>
       </Route>
@@ -50,10 +50,6 @@ function AppRoutes() {
 }
 
 export default function App() {
-  useEffect(() => {
-    ensureDemoDataSeeded()
-  }, [])
-
   return (
     <ToastProvider>
       <AuthProvider>

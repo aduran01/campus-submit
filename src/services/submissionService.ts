@@ -1,85 +1,37 @@
-import type { Submission, SubmissionStatus } from '../types'
-import { STORAGE_KEYS, SUBMISSION_CONFIG } from '../config/appConfig'
-import { readLocal, writeLocal } from './storage'
-
-function generateId(): string {
-  return `submission-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`
-}
-
-/** Returns whether `dueDate` has already passed, honoring the `enforceDeadlines` config flag. */
-export function isPastDue(dueDate: string): boolean {
-  if (!SUBMISSION_CONFIG.enforceDeadlines) return false
-  return Date.now() > new Date(dueDate).getTime()
-}
-
-export function getAllSubmissions(): Submission[] {
-  return readLocal<Submission[]>(STORAGE_KEYS.submissions, [])
-}
-
-export function getSubmission(assignmentId: string, studentUsername: string): Submission | undefined {
-  return getAllSubmissions().find((s) => s.assignmentId === assignmentId && s.studentUsername === studentUsername)
-}
-
-export function getSubmissionsForStudent(studentUsername: string): Submission[] {
-  return getAllSubmissions().filter((s) => s.studentUsername === studentUsername)
-}
-
-/** Number of submissions recorded for a given assignment, across all students. Used by the admin dashboard. */
-export function countSubmissionsForAssignment(assignmentId: string): number {
-  return getAllSubmissions().filter((s) => s.assignmentId === assignmentId && s.status !== 'not_submitted').length
-}
-
-export interface RecordSubmissionInput {
-  assignmentId: string
-  studentUsername: string
-  dueDate: string
-  fileName: string
-  fileType: string
-  fileSize: number
-}
+import type { Submission } from '../types'
+import { apiClient, fetchAuthorizedBlob } from './apiClient'
 
 /**
- * Records a simulated submission. No file is ever transmitted anywhere —
- * this only persists metadata about the file the student selected
- * (name/type/size) plus a timestamp, standing in for what a real backend
- * would record after actually storing the upload.
+ * Returns submissions scoped to whoever is signed in: the server sends back
+ * every submission for an admin, or only the caller's own for a student —
+ * same endpoint, role-aware response, so the frontend doesn't need two
+ * separate functions.
  */
-export function recordSubmission(input: RecordSubmissionInput): Submission {
-  const now = new Date()
-  const late = SUBMISSION_CONFIG.enforceDeadlines && now.getTime() > new Date(input.dueDate).getTime()
-  const status: SubmissionStatus = late ? 'submitted_late' : 'submitted'
-
-  const all = getAllSubmissions()
-  const existingIndex = all.findIndex(
-    (s) => s.assignmentId === input.assignmentId && s.studentUsername === input.studentUsername,
-  )
-
-  const submission: Submission = {
-    id: existingIndex >= 0 ? all[existingIndex].id : generateId(),
-    assignmentId: input.assignmentId,
-    studentUsername: input.studentUsername,
-    status,
-    submittedAt: now.toISOString(),
-    fileName: input.fileName,
-    fileType: input.fileType || 'unknown',
-    fileSize: input.fileSize,
-  }
-
-  if (existingIndex >= 0) {
-    all[existingIndex] = submission
-  } else {
-    all.push(submission)
-  }
-
-  writeLocal(STORAGE_KEYS.submissions, all)
-  return submission
+export function getSubmissions(): Promise<Submission[]> {
+  return apiClient.get<Submission[]>('/api/submissions')
 }
 
-/** Removes every submission tied to an assignment. Called when that assignment is deleted. */
-export function deleteSubmissionsForAssignment(assignmentId: string): void {
-  const all = getAllSubmissions()
-  writeLocal(
-    STORAGE_KEYS.submissions,
-    all.filter((s) => s.assignmentId !== assignmentId),
-  )
+export async function submitAssignment(assignmentId: string, file: File): Promise<Submission> {
+  const formData = new FormData()
+  formData.append('assignmentId', assignmentId)
+  formData.append('file', file)
+  return apiClient.post<Submission>('/api/submissions', formData)
+}
+
+/** Triggers a browser download of a submission's file — a plain <a href> can't attach the auth header this needs, so this fetches the bytes first. */
+export async function downloadSubmissionFile(submission: Submission): Promise<void> {
+  const blob = await fetchAuthorizedBlob(`/api/submissions/${submission.id}/file`)
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = url
+  link.download = submission.fileName
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+  URL.revokeObjectURL(url)
+}
+
+/** Purely a client-side display hint (e.g. the "Overdue" badge before a submission exists) — the server independently decides submitted vs. submitted_late when it records a real submission. */
+export function isPastDue(dueDate: string): boolean {
+  return Date.now() > new Date(dueDate).getTime()
 }

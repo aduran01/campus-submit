@@ -1,27 +1,20 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { getAssignments } from '../services/assignmentService'
-import { getSubmissionsForStudent, isPastDue } from '../services/submissionService'
-import type { Assignment, Submission } from '../types'
+import { useAssignmentsData } from '../hooks/useAssignmentsData'
+import { isPastDue } from '../services/submissionService'
 import { Card } from '../components/ui/Card'
 import { Badge } from '../components/ui/Badge'
+import { PageLoading } from '../components/ui/PageLoading'
 import { formatDueDate, getRelativeDueLabel } from '../utils/dateUtils'
 import styles from './StudentDashboardPage.module.css'
 
 export function StudentDashboardPage() {
   const { user } = useAuth()
-  const [assignments, setAssignments] = useState<Assignment[]>([])
-  const [submissions, setSubmissions] = useState<Submission[]>([])
-
-  useEffect(() => {
-    if (!user) return
-    setAssignments(getAssignments())
-    setSubmissions(getSubmissionsForStudent(user.username))
-  }, [user])
+  const { assignments, submissions, isLoading } = useAssignmentsData()
 
   const stats = useMemo(() => {
-    const submittedIds = new Set(submissions.filter((s) => s.status !== 'not_submitted').map((s) => s.assignmentId))
+    const submittedIds = new Set(submissions.map((s) => s.assignmentId))
     const submittedCount = assignments.filter((a) => submittedIds.has(a.id)).length
     const overdueCount = assignments.filter((a) => !submittedIds.has(a.id) && isPastDue(a.dueDate)).length
     const upcoming = assignments
@@ -36,6 +29,10 @@ export function StudentDashboardPage() {
       nextUp: upcoming[0],
     }
   }, [assignments, submissions])
+
+  if (isLoading) {
+    return <PageLoading />
+  }
 
   return (
     <div className={styles.page}>

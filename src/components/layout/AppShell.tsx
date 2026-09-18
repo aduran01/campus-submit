@@ -13,6 +13,7 @@ const ADMIN_LINKS = [
   { to: '/dashboard', label: 'Dashboard' },
   { to: '/assignments', label: 'Assignments' },
   { to: '/assignments/new', label: 'Create Assignment' },
+  { to: '/submissions', label: 'Submissions' },
 ]
 
 export function AppShell() {

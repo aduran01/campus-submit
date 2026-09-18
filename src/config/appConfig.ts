@@ -2,38 +2,31 @@
  * ============================================================================
  * APPLICATION CONFIGURATION
  * ============================================================================
- * Centralized, easy-to-edit knobs for the prototype. Nothing outside this
- * file should hardcode file-size limits, allowed file types, or storage keys.
+ * Centralized, easy-to-edit knobs for the app. Nothing outside this file
+ * should hardcode the API URL, file-size limits, allowed file types, or
+ * storage keys.
  * ============================================================================
  */
 
 export const APP_NAME = 'CampusSubmit'
 
+/**
+ * The backend API's base URL. Set via the VITE_API_URL build-time env var
+ * (see .env.development / .env.production); falls back to the local dev
+ * server address if unset.
+ */
+export const API_BASE_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:4000'
+
 export const FILE_UPLOAD_CONFIG = {
-  /** Maximum accepted file size, in bytes. Change this to adjust the limit shown to students. */
+  /** Maximum accepted file size, in bytes. Must match server/src/config.ts's maxUploadBytes — the server is the authority; this just gives fast client-side feedback. */
   maxSizeBytes: 10 * 1024 * 1024, // 10 MB
 
-  /** File extensions accepted by the attachment control (case-insensitive, must include the leading dot). */
+  /** File extensions accepted by the attachment control (case-insensitive, must include the leading dot). Must match server/src/config.ts's allowedExtensions. */
   allowedExtensions: ['.pdf', '.doc', '.docx', '.txt', '.zip', '.png', '.jpg', '.jpeg'],
 }
 
-export const SUBMISSION_CONFIG = {
-  /**
-   * When true, assignments past their due date are shown as "Overdue" and a
-   * new submission is recorded with a "submitted late" status instead of
-   * "submitted". When false, due dates are informational only.
-   */
-  enforceDeadlines: true,
-}
-
-/**
- * localStorage / sessionStorage keys. Versioned with a suffix so a future
- * change to the stored data shape can bump the version without needing a
- * migration for this prototype's throwaway data.
- */
+/** localStorage keys — only the auth session lives client-side now; assignments/submissions live on the server. */
 export const STORAGE_KEYS = {
-  session: 'campus-submit.session.v1',
-  assignments: 'campus-submit.assignments.v1',
-  submissions: 'campus-submit.submissions.v1',
-  seeded: 'campus-submit.seeded.v1',
+  authToken: 'campus-submit.auth-token.v1',
+  authUser: 'campus-submit.auth-user.v1',
 }

@@ -75,6 +75,13 @@
   text-align: center;
 }
 
+.wakingHint {
+  margin-top: var(--space-3);
+  font-size: 0.78rem;
+  color: var(--color-neutral-400);
+  text-align: center;
+}
+
 .demoCredentials {
   margin-top: var(--space-6);
   border-top: 1px solid var(--color-neutral-100);

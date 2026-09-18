@@ -1,23 +1,22 @@
 /**
- * Shared data model for the CampusSubmit prototype.
+ * Shared data model for the CampusSubmit frontend.
  *
- * These types describe the shape of data the app works with today (stored
- * in the browser via `services/storage.ts`). If this prototype is ever
- * connected to a real backend, these are a reasonable starting point for the
- * API's request/response DTOs — the field names and semantics shouldn't need
- * to change much, even though *where the data lives* would.
+ * These mirror the backend's response shapes (see `server/src/types.ts`) —
+ * assignments and submissions live on the server now, fetched via
+ * `services/apiClient.ts`. Only the auth session is still stored client-side
+ * (see `services/tokenStorage.ts`).
  */
 
 export type UserRole = 'admin' | 'student'
 
-/** The authenticated user as tracked for the current browser session. */
+/** The authenticated user, decoded from the signed-in session's JWT. */
 export interface AuthenticatedUser {
   username: string
   displayName: string
   role: UserRole
 }
 
-/** An assignment created by an admin and visible to students. */
+/** An assignment created by an admin and visible to every student. */
 export interface Assignment {
   id: string
   title: string
@@ -35,23 +34,25 @@ export interface AssignmentInput {
   dueDate: string
 }
 
-export type SubmissionStatus = 'not_submitted' | 'submitted' | 'submitted_late'
+export type SubmissionStatus = 'submitted' | 'submitted_late'
 
 /**
- * A student's submission record for one assignment. The prototype never
- * stores the actual file — only metadata about it — since no file is ever
- * uploaded anywhere (see README "Prototype Limitations").
+ * A student's submission for one assignment, as returned by the API. There
+ * is no "not_submitted" status here — the server only ever returns records
+ * that exist; the UI treats the absence of a Submission for a given
+ * assignment as "not submitted" (see AssignmentCard).
  */
 export interface Submission {
   id: string
   assignmentId: string
+  assignmentTitle: string
   studentUsername: string
+  studentDisplayName: string
   status: SubmissionStatus
-  /** ISO 8601 datetime string, set the moment the simulated submission completes. */
-  submittedAt: string | null
-  fileName: string | null
-  fileType: string | null
-  fileSize: number | null
+  submittedAt: string
+  fileName: string
+  fileType: string
+  fileSize: number
 }
 
 /** Generic result wrapper used by the service layer. */

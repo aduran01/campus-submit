@@ -5,8 +5,8 @@ import { Button } from '../ui/Button'
 import { FileDropzone } from './FileDropzone'
 import { validateFile } from '../../utils/fileUtils'
 import { formatDueDate } from '../../utils/dateUtils'
-import { isPastDue, recordSubmission } from '../../services/submissionService'
-import { useAuth } from '../../context/AuthContext'
+import { isPastDue, submitAssignment } from '../../services/submissionService'
+import { ApiError } from '../../services/apiClient'
 import styles from './SubmissionPanel.module.css'
 
 interface SubmissionPanelProps {
@@ -16,11 +16,7 @@ interface SubmissionPanelProps {
   onSubmitted: (submission: Submission) => void
 }
 
-// Simulated network delay so the loading state is visible without feeling sluggish.
-const SIMULATED_SUBMIT_DELAY_MS = 900
-
 export function SubmissionPanel({ isOpen, assignment, onClose, onSubmitted }: SubmissionPanelProps) {
-  const { user } = useAuth()
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [fileError, setFileError] = useState<string | null>(null)
   const [formError, setFormError] = useState<string | null>(null)
@@ -47,7 +43,7 @@ export function SubmissionPanel({ isOpen, assignment, onClose, onSubmitted }: Su
   }
 
   async function handleSubmit() {
-    if (!assignment || !user || isSubmitting) return // guard against duplicate/rapid clicks
+    if (!assignment || isSubmitting) return // guard against duplicate/rapid clicks
 
     if (!selectedFile) {
       setFormError('Please attach a file before submitting.')
@@ -61,22 +57,16 @@ export function SubmissionPanel({ isOpen, assignment, onClose, onSubmitted }: Su
     setFormError(null)
     setIsSubmitting(true)
 
-    // Simulate the round-trip a real upload would take.
-    await new Promise((resolve) => setTimeout(resolve, SIMULATED_SUBMIT_DELAY_MS))
-
-    const submission = recordSubmission({
-      assignmentId: assignment.id,
-      studentUsername: user.username,
-      dueDate: assignment.dueDate,
-      fileName: selectedFile.name,
-      fileType: selectedFile.type,
-      fileSize: selectedFile.size,
-    })
-
-    setIsSubmitting(false)
-    setSelectedFile(null)
-    setFileError(null)
-    onSubmitted(submission)
+    try {
+      const submission = await submitAssignment(assignment.id, selectedFile)
+      setSelectedFile(null)
+      setFileError(null)
+      onSubmitted(submission)
+    } catch (err) {
+      setFormError(err instanceof ApiError ? err.message : 'Something went wrong submitting this. Please try again.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   if (!assignment) return null
@@ -119,9 +109,7 @@ export function SubmissionPanel({ isOpen, assignment, onClose, onSubmitted }: Su
         </p>
       )}
 
-      <p className={styles.disclaimer}>
-        This is a demo — your file stays in your browser and is never uploaded anywhere.
-      </p>
+      <p className={styles.disclaimer}>Your instructor will be able to see and download this file.</p>
     </Modal>
   )
 }

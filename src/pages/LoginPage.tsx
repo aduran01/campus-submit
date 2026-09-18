@@ -3,6 +3,7 @@ import type { FormEvent } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { APP_NAME } from '../config/appConfig'
+import { DEMO_ACCOUNTS } from '../config/credentials'
 import { Button } from '../components/ui/Button'
 import { TextField } from '../components/ui/FormField'
 import styles from './LoginPage.module.css'
@@ -37,14 +38,9 @@ export function LoginPage() {
     navigate('/dashboard', { replace: true })
   }
 
-  function fillDemo(role: 'student' | 'admin') {
-    if (role === 'student') {
-      setUsername('student')
-      setPassword('***REMOVED-SEED-PASSWORD***')
-    } else {
-      setUsername('admin')
-      setPassword('***REMOVED-SEED-PASSWORD***')
-    }
+  function fillDemo(account: (typeof DEMO_ACCOUNTS)[number]) {
+    setUsername(account.username)
+    setPassword(account.password)
     setError(null)
   }
 
@@ -61,8 +57,8 @@ export function LoginPage() {
         <p className={styles.tagline}>Assignment submission, made simple.</p>
 
         <div className={styles.demoBanner} role="note">
-          This is a demo application. No real data is uploaded or stored on any server — everything runs in your
-          browser.
+          This is a demo application. Assignments and submissions are shared across every device that signs in —
+          they're stored on a small demo server, not just in this browser.
         </div>
 
         <form onSubmit={handleSubmit} noValidate className={styles.form}>
@@ -92,23 +88,24 @@ export function LoginPage() {
           <Button type="submit" fullWidth isLoading={isSubmitting}>
             Log In
           </Button>
+          {isSubmitting && (
+            <p className={styles.wakingHint}>
+              First login after a while can take up to ~30s — the free-tier server is waking up.
+            </p>
+          )}
         </form>
 
         <details className={styles.demoCredentials}>
           <summary>Need demo credentials?</summary>
           <div className={styles.demoCredentialsBody}>
-            <button type="button" className={styles.demoRow} onClick={() => fillDemo('student')}>
-              <span className={styles.demoRoleLabel}>Student</span>
-              <span className={styles.demoRoleValue}>
-                student <span className={styles.demoSeparator}>/</span> ***REMOVED-SEED-PASSWORD***
-              </span>
-            </button>
-            <button type="button" className={styles.demoRow} onClick={() => fillDemo('admin')}>
-              <span className={styles.demoRoleLabel}>Admin</span>
-              <span className={styles.demoRoleValue}>
-                admin <span className={styles.demoSeparator}>/</span> ***REMOVED-SEED-PASSWORD***
-              </span>
-            </button>
+            {DEMO_ACCOUNTS.map((account) => (
+              <button key={account.username} type="button" className={styles.demoRow} onClick={() => fillDemo(account)}>
+                <span className={styles.demoRoleLabel}>{account.role === 'admin' ? 'Admin' : 'Student'}</span>
+                <span className={styles.demoRoleValue}>
+                  {account.username} <span className={styles.demoSeparator}>/</span> {account.password}
+                </span>
+              </button>
+            ))}
             <p className={styles.demoHint}>Click either row to autofill the form. Changeable in src/config/credentials.ts.</p>
           </div>
         </details>

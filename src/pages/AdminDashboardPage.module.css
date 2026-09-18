@@ -56,6 +56,16 @@
   gap: var(--space-1);
 }
 
+.statCardLink {
+  display: block;
+  transition: transform var(--transition-fast);
+}
+
+.statCardLink:hover {
+  transform: translateY(-1px);
+  text-decoration: none;
+}
+
 .statValue {
   font-size: 1.9rem;
   font-weight: 800;
