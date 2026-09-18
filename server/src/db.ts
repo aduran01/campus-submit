@@ -56,7 +56,7 @@ async function seedUsers(): Promise<void> {
     `INSERT INTO users (username, password_hash, role, display_name) VALUES
        ($1, $2, 'student', $3),
        ($4, $5, 'admin', $6)`,
-    ['student', studentHash, 'Jordan Rivera', 'admin', adminHash, 'Admin User'],
+    ['student', studentHash, 'Camille Rimbawa', 'admin', adminHash, 'Admin User'],
   )
 }
 
