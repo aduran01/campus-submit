@@ -1,5 +1,7 @@
 # CampusSubmit
 
+**Live demo:** https://aduran01.github.io/campus-submit/ (deployed automatically from `main` via GitHub Actions — see `.github/workflows/deploy.yml`)
+
 CampusSubmit is a **front-end prototype** of an assignment submission platform. It demonstrates the full student/admin submission workflow — creating assignments, attaching a file, submitting, and seeing a success state — entirely in the browser, with no backend server.
 
 > **This is a demo, not a production system.** No file is ever uploaded anywhere, there is no real authentication server, and all data lives in your browser's `localStorage`. See [Prototype & Security Limitations](#prototype--security-limitations) below before using any part of this as-is in production.
@@ -18,9 +20,10 @@ CampusSubmit is a **front-end prototype** of an assignment submission platform. 
 8. [Installing Dependencies](#installing-dependencies)
 9. [Running Locally](#running-locally)
 10. [Building for Production](#building-for-production)
-11. [Prototype & Security Limitations](#prototype--security-limitations)
-12. [What Would Need to Change for Production](#what-would-need-to-change-for-production)
-13. [Project Structure](#project-structure)
+11. [Hosting (GitHub Pages)](#hosting-github-pages)
+12. [Prototype & Security Limitations](#prototype--security-limitations)
+13. [What Would Need to Change for Production](#what-would-need-to-change-for-production)
+14. [Project Structure](#project-structure)
 
 ---
 
@@ -155,6 +158,15 @@ This type-checks the project (`tsc -b`) and produces an optimized static build i
 ```bash
 npm run preview
 ```
+
+## Hosting (GitHub Pages)
+
+This repo deploys automatically to GitHub Pages on every push to `main` via `.github/workflows/deploy.yml` (build with `npm run build`, then `actions/deploy-pages`). Two things specifically account for GitHub Pages being a static host with no server-side rewrites:
+
+- **`vite.config.ts`** sets `base: '/campus-submit/'` for production builds only (local `npm run dev` still serves from `/`), since a GitHub Pages project site is served from a subpath, not the domain root.
+- **`src/main.tsx`** uses React Router's `HashRouter` instead of `BrowserRouter`, so routes look like `.../#/login`. A `BrowserRouter` would 404 on a refreshed or shared deep link (e.g. `.../assignments`) because GitHub Pages has no server to rewrite unknown paths back to `index.html`.
+
+To point this at a different static host (Netlify, Vercel, S3, etc.) instead: change `base` back to `/`, and switch back to `BrowserRouter` if that host supports SPA fallback/rewrites (most do).
 
 ## Prototype & Security Limitations
 
