@@ -12,6 +12,9 @@ export const config = {
   port: Number(process.env.PORT ?? 4000),
   databaseUrl: required('DATABASE_URL'),
   jwtSecret: required('JWT_SECRET'),
+  /** Plaintext seed passwords for the two demo accounts — read once at boot and immediately bcrypt-hashed (see db.ts's seedUsers()). Never hardcode these; set them as env vars (Render dashboard in production, server/.env locally). */
+  adminSeedPassword: required('ADMIN_SEED_PASSWORD'),
+  studentSeedPassword: required('STUDENT_SEED_PASSWORD'),
   corsOrigins: (process.env.CORS_ORIGINS ?? 'http://localhost:5173')
     .split(',')
     .map((origin) => origin.trim())

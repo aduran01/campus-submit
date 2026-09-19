@@ -15,7 +15,7 @@ CampusSubmit is a small assignment-submission platform with a real client/server
 3. [Technology Stack](#technology-stack)
 4. [Application Architecture](#application-architecture)
 5. [How Authentication Works](#how-authentication-works)
-6. [Demo Credentials](#demo-credentials)
+6. [Demo Access](#demo-access)
 7. [Data Persistence](#data-persistence)
 8. [Installing Dependencies](#installing-dependencies)
 9. [Running Locally](#running-locally)
@@ -106,22 +106,17 @@ server/         Node/Express backend (deployed to Render)
 3. The frontend stores that token in `localStorage` (`src/services/tokenStorage.ts`) and sends it as `Authorization: Bearer <token>` on every subsequent request (`src/services/apiClient.ts`).
 4. Every protected route on the server re-verifies the token itself (`requireAuth`) and, for admin-only actions, checks the decoded role (`requireRole('admin')`) — the frontend's `ProtectedRoute` component also redirects unauthenticated/wrong-role visitors, but that's a UX convenience, not the actual security boundary. The boundary is server-side.
 
-This is real authentication, not a simulation — but see [Prototype & Security Limitations](#prototype--security-limitations) for what's still not production-grade about it (fixed demo accounts, a shared JWT secret you can see in this README's history, no rate limiting, etc.).
+This is real authentication, not a simulation — but see [Prototype & Security Limitations](#prototype--security-limitations) for what's still not production-grade about it (fixed demo accounts, no rate limiting, etc.). `JWT_SECRET` itself is never committed — it's set only as an environment variable in Render's dashboard.
 
-## Demo Credentials
+## Demo Access
 
-| Role | Username | Password |
-|---|---|---|
-| Student | `student` |  |
-| Admin | `admin` |  |
-
-The login page has a "Need demo credentials?" disclosure that shows both and can autofill the form. These are display hints only now — `src/config/credentials.ts` documents them for the UI, but the accounts themselves live in the `users` table on the server.
+Demo usernames/passwords are **not published in this repo or on the live login page** — the login page has no autofill/credential-hint UI, and the seed passwords used to create the two demo accounts are read from environment variables (`ADMIN_SEED_PASSWORD` / `STUDENT_SEED_PASSWORD`, set only in Render's dashboard — see `server/.env.example` for local dev), never hardcoded in source. If you'd like to try the live demo, ask the maintainer for the current credentials.
 
 **To change a password:** you need to update it in the database, since that's the source of truth now. The simplest way for this demo-sized user table:
-1. Update the display hint in `src/config/credentials.ts` (so the login page shows the new value).
-2. Generate a new bcrypt hash and update the corresponding row in the `users` table (e.g. via Render's Postgres dashboard's SQL console, or `psql`):
+1. Update `ADMIN_SEED_PASSWORD` / `STUDENT_SEED_PASSWORD` in Render's dashboard (or `server/.env` locally) — note this only affects a **brand-new** database on next boot; an already-seeded row isn't retroactively updated (the student row is the exception — it's re-synced from the env var on every boot).
+2. For an existing database, generate a new bcrypt hash and update the corresponding row directly (e.g. via Render's Postgres dashboard's SQL console, or `psql`):
    ```sql
-   UPDATE users SET password_hash = '<new bcrypt hash>' WHERE username = 'student';
+   UPDATE users SET password_hash = '<new bcrypt hash>' WHERE username = 'crimbawa'; -- or 'admin'
    ```
    Generate the hash locally with: `node -e "require('bcryptjs').hash('new-password', 10).then(console.log)"` (run from inside `server/`, after `npm install`).
 
@@ -151,7 +146,7 @@ npm install
 
 ## Running Locally
 
-**Backend first** — copy `server/.env.example` to `server/.env` and fill in a real `DATABASE_URL` (a free Postgres instance from [Render](https://render.com) or similar works fine) and a random `JWT_SECRET`, then:
+**Backend first** — copy `server/.env.example` to `server/.env` and fill in a real `DATABASE_URL` (a free Postgres instance from [Render](https://render.com) or similar works fine), a random `JWT_SECRET`, and your own choice of `ADMIN_SEED_PASSWORD`/`STUDENT_SEED_PASSWORD` (these seed the two demo accounts — pick anything for local dev), then:
 ```bash
 cd server
 npm run dev
@@ -187,7 +182,7 @@ npm start        # runs the compiled output
 - `vite.config.ts` sets `base: '/campus-submit/'` for production builds only, since a GitHub Pages project site is served from a subpath.
 - `src/main.tsx` uses `HashRouter` instead of `BrowserRouter`, so routes look like `.../#/login` — a `BrowserRouter` would 404 on a refreshed or shared deep link, since GitHub Pages has no server to rewrite unknown paths back to `index.html`.
 
-**Backend → Render.** A free Render Web Service runs `server/` (root directory `server`, build `npm install && npm run build`, start `npm start`), talking to a free Render Postgres instance. Three environment variables are set in Render's dashboard (never committed): `DATABASE_URL`, `JWT_SECRET`, `CORS_ORIGINS` (set to `https://aduran01.github.io`, matching the frontend's origin).
+**Backend → Render.** A free Render Web Service runs `server/` (root directory `server`, build `npm install && npm run build`, start `npm start`), talking to a free Render Postgres instance. Five environment variables are set in Render's dashboard (never committed): `DATABASE_URL`, `JWT_SECRET`, `ADMIN_SEED_PASSWORD`, `STUDENT_SEED_PASSWORD`, `CORS_ORIGINS` (set to `https://aduran01.github.io`, matching the frontend's origin).
 
 **Known free-tier limitation:** Render's free web services spin down after 15 minutes of inactivity. The first request after that can take up to ~30 seconds while it wakes back up — the login page shows a hint about this while a login is in flight. The database itself doesn't sleep.
 
@@ -197,8 +192,8 @@ To move either half elsewhere: the frontend just needs `VITE_API_URL` pointed at
 
 This has a real backend, real auth, and real file storage — but it's still a small demo project, not a production system. Specifically:
 
-- **Fixed demo accounts only** — there's no signup flow; the two accounts are seeded once and that's the entire user base. Anyone with the demo credentials (published in this README) has full access.
-- **Secrets are static and never rotated** — the JWT signing secret lives only in Render's environment variables (not committed), but has no rotation policy; the two demo passwords are intentionally published in this README. Don't reuse either for anything real.
+- **Fixed demo accounts only** — there's no signup flow; the two accounts are seeded once and that's the entire user base. Anyone who gets ahold of the demo credentials (not published — see [Demo Access](#demo-access)) has full access.
+- **Secrets are static and never rotated** — the JWT signing secret and the two seed passwords live only in Render's environment variables (never committed, never published), but none of them have a rotation policy. Don't reuse any of them for anything real.
 - **No rate limiting or brute-force protection** on the login endpoint.
 - **No audit logging** — deletions and resets are irreversible with no history of who did what.
 - **Free-tier hosting caveats** — the API server sleeps when idle (see [Hosting](#hosting)); the free Postgres instance has no automated backups and (per Render's free-tier policy) may be subject to retention limits — don't treat this database as durable long-term storage without upgrading it.
@@ -230,7 +225,7 @@ campus-submit/
 ├── src/                         React frontend — see "Application Architecture" above
 │   ├── main.tsx / App.tsx
 │   ├── styles/                  variables.css (design tokens), global.css
-│   ├── config/                  appConfig.ts (API URL, file limits), credentials.ts (demo-account hints)
+│   ├── config/                  appConfig.ts (API URL, file limits)
 │   ├── types/index.ts
 │   ├── services/                apiClient.ts, tokenStorage.ts, authService.ts, assignmentService.ts,
 │   │                            submissionService.ts, adminService.ts
@@ -242,7 +237,7 @@ campus-submit/
 └── server/                      Node/Express backend — deployed separately to Render
     ├── package.json
     ├── tsconfig.json
-    ├── .env.example             Template for local DATABASE_URL/JWT_SECRET/CORS_ORIGINS
+    ├── .env.example             Template for local DATABASE_URL/JWT_SECRET/ADMIN_SEED_PASSWORD/STUDENT_SEED_PASSWORD/CORS_ORIGINS
     └── src/
         ├── index.ts             App bootstrap, CORS, route mounting
         ├── config.ts            Env var loading

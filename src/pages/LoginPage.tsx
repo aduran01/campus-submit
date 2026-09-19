@@ -72,18 +72,6 @@ export function LoginPage() {
     navigate('/dashboard', { replace: true })
   }
 
-  //pls dont flame me i did not feel like encrypting this
-  function fillDemo(role: 'student' | 'admin') {
-    if (role === 'student') {
-      setUsername('crimbawa')
-      setPassword('***REMOVED-SEED-PASSWORD***')
-    } else {
-      setUsername('admin')
-      setPassword('***REMOVED-SEED-PASSWORD***')
-    }
-    setError(null)
-  }
-
   return (
     <div className={styles.page}>
       <div className={styles.card}>
@@ -126,31 +114,6 @@ export function LoginPage() {
             Log In
           </Button>
         </form>
-
-        <div className={styles.divider} aria-hidden="true">
-          <span className={styles.dividerLine} />
-          <span className={styles.dividerText}>Demo access</span>
-          <span className={styles.dividerLine} />
-        </div>
-
-        <details className={styles.demoCredentials}>
-          <summary>Need demo credentials?</summary>
-          <div className={styles.demoCredentialsBody}>
-            <button type="button" className={styles.demoRow} onClick={() => fillDemo('student')}>
-              <span className={styles.demoRoleLabel}>Student</span>
-              <span className={styles.demoRoleValue}>
-                student <span className={styles.demoSeparator}>/</span> ***REMOVED-SEED-PASSWORD***
-              </span>
-            </button>
-            <button type="button" className={styles.demoRow} onClick={() => fillDemo('admin')}>
-              <span className={styles.demoRoleLabel}>Admin</span>
-              <span className={styles.demoRoleValue}>
-                admin <span className={styles.demoSeparator}>/</span> ***REMOVED-SEED-PASSWORD***
-              </span>
-            </button>
-            <p className={styles.demoHint}>Click either row to autofill the form. Changeable in src/config/credentials.ts.</p>
-          </div>
-        </details>
       </div>
     </div>
   )

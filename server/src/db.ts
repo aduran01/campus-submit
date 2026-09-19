@@ -46,7 +46,6 @@ async function createSchema(): Promise<void> {
 }
 
 const STUDENT_USERNAME = 'crimbawa'
-const STUDENT_PASSWORD = '***REMOVED-SEED-PASSWORD***'
 const LEGACY_STUDENT_USERNAME = 'student'
 
 /**
@@ -54,9 +53,16 @@ const LEGACY_STUDENT_USERNAME = 'student'
  * The student account is also re-synced on every boot, so an already-seeded
  * database picks up the current username/password, and any submissions made
  * under the old 'student' username are carried over to the new one.
+ *
+ * Seed passwords come from env vars (ADMIN_SEED_PASSWORD / STUDENT_SEED_PASSWORD
+ * — see config.ts), never string literals, and are hashed immediately below;
+ * only the bcrypt hash is ever written to the database.
  */
 async function seedUsers(): Promise<void> {
-  const [adminHash, studentHash] = await Promise.all([hashPassword('***REMOVED-SEED-PASSWORD***'), hashPassword(STUDENT_PASSWORD)])
+  const [adminHash, studentHash] = await Promise.all([
+    hashPassword(config.adminSeedPassword),
+    hashPassword(config.studentSeedPassword),
+  ])
 
   await pool.query(
     `INSERT INTO users (username, password_hash, role, display_name) VALUES ($1, $2, 'admin', $3)
